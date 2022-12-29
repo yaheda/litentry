@@ -10,21 +10,24 @@ function App() {
     });
     
   });
+
+  async function signin() {
+    var data = { ben: 'zona' };
+    var response = await axios.post('/api/v1/signin', data, { headers: { Accept: "application/json","Content-Type": "application/json"}});
+  }
+
   return (
     <div className="App">
       <header className="App-header">
+        <div>
+          Litentry Fullstack Task
+        </div>
         <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
+        <button 
+          className="btn btn-success"
+          onClick={e => signin()}>
+            Click here to sign-in with Polkadot and reveal secret
+        </button>
       </header>
     </div>
   );

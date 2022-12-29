@@ -1,6 +1,9 @@
 const express = require("express");
 const passport = require("passport")
 const cookieParser = require("cookie-parser")
+const cors = require("cors")
+
+require("dotenv").config()
 
 const PORT = process.env.PORT || 5000; 
 const server = express();
@@ -8,6 +11,24 @@ const server = express();
 server.use(express.json());
 server.use(cookieParser(process.env.COOKIE_SECRET))
 server.use(express.urlencoded({ extended: true }));
+
+const whitelist = process.env.WHITELISTED_DOMAINS
+  ? process.env.WHITELISTED_DOMAINS.split(",")
+  : []
+
+const corsOptions = {
+  origin: function (origin, callback) {
+    if (!origin || whitelist.indexOf(origin) !== -1) {
+      callback(null, true)
+    } else {
+      callback(new Error("Not allowed by CORS"))
+    }
+  },
+
+  credentials: true,
+}
+
+server.use(cors(corsOptions))
 
 server.use(require('express-session')({
   secret: 'keyboard cat',
