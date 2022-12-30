@@ -55,5 +55,7 @@ server.get("/api/hello", (req, res) => {
 
 server.listen(PORT, () => console.log(`listening on port ${PORT}`));
 
+module.exports = server;
+
 
 /// https://www.codingdeft.com/posts/react-authentication-mern-node-passport-express-mongo/
