@@ -10,7 +10,7 @@ The project is split into 2 parts. A backend writen in node.js express and and f
  
 <h2>Server</h2>
 
-To run: npm start
+To run: npm start <br />
 To test: npm run test
 
 The api has the following enpoints:
@@ -27,7 +27,7 @@ In turn the backend validates this signature in a passort custom strategy. If va
 
 <h2>Client</h2>
 
-To run: npm start
+To run: npm start <br />
 To test: npm test
 
 Here we have a basic frontend written in React.
