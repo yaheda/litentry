@@ -11,6 +11,7 @@ function App() {
   const [loading, setLoading] = useState(false);
   const [authenticated, setAuthenticated] = useState(false);
   const [account, setAccount] = useState(undefined);
+  const [address, setAddress] = useState(undefined);
   const [secret, setSecret] = useState(undefined);
   const [error, setError] = useState(undefined);
   const [token, setToken] = useState(undefined);
@@ -32,6 +33,9 @@ function App() {
     })
   }, [setToken]);
 
+  const [isLoaded, setIsLoaded] = useState(false);
+  const [isPageLoaded, setIsPageLoaded] = useState(false); //this helps
+
   useEffect(() => {
     const init = async () => {
       //await initPolkadot();
@@ -45,7 +49,7 @@ function App() {
 
   useEffect(() => {
     const init = async () => {
-      if (!account) return;
+      if (!account && !authenticated) return;
       await signin();
     }
     init();
@@ -71,6 +75,7 @@ function App() {
         return;
       }
       setAccount(allAccounts[0]);
+      setAddress(allAccounts[0].address);
     } catch(error) {
       setError(error.message ?? 'Opps error, please contact your system administrator');
     }
@@ -113,7 +118,8 @@ function App() {
       var response = await axios.post('/api/v1/signin', signInPayload, { 
         withCredentials: true,
         headers: { Accept: "application/json","Content-Type": "application/json"}});
-      await setToken(response.data.token);
+      setToken(response.data.token);
+      setAuthenticated(true);
     } catch (error) {
       setError('Error Signing in - please contact your admin')
     }
@@ -131,7 +137,9 @@ function App() {
           Authorization: `Bearer ${token}`,
         }}
       );
-      setSecret(response.data.secret)
+      setSecret(response.data.secret);
+
+      //updateAccount();
 
     } catch (error) {
       setError('Error fetching secret - please contact your admin')
@@ -155,12 +163,36 @@ function App() {
       );
       setSecret(undefined);
       setToken(undefined);
+      window.localStorage.setItem("LIT_LOGOUT", Date.now())
 
     } catch (error) {
       setError('Error logging out - please contact your admin')
     }
 
     setLoading(false);
+  }
+
+  const syncLogout = useCallback(event => {
+    if (event.key === "LIT_LOGOUT") {
+      window.location.reload()
+    }
+  }, [])
+
+  useEffect(() => {
+    window.addEventListener("storage", syncLogout)
+    return () => {
+      window.removeEventListener("storage", syncLogout)
+    }
+  }, [syncLogout])
+
+  async function updateAccount() {
+    const extensions = await web3Enable('lit dapp');
+    const allAccounts = await web3Accounts();
+    if (extensions.length === 0) {
+      setError('no extension installed, or the user did not accept the authorization')
+      return;
+    }
+    setAddress(allAccounts);
   }
 
   return (
