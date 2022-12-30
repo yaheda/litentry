@@ -39,6 +39,7 @@ function App() {
   useEffect(() => {
     const init = async () => {
       //await initPolkadot();
+      console.log(process.env.REACT_APP_SERVER)
     };
     init();
   }, []);

@@ -21,7 +21,8 @@ const corsOptions = {
     if (!origin || whitelist.indexOf(origin) !== -1) {
       callback(null, true)
     } else {
-      callback(new Error("Not allowed by CORS"))
+      var msg = 'origin ' + origin + ' - ' + whitelist.indexOf(origin);
+      callback(new Error("Not allowed by CORS" + msg))
     }
   },
 
@@ -49,8 +50,8 @@ var secretRoutes = require('./routes/secret');
 server.use("/api/v1", accountRoutes);
 server.use("/api/v1", secretRoutes)
 
-server.get("/api/hello", (req, res) => {
-  res.status(200).send("Hello WorldAAA!");
+server.get("/", (req, res) => {
+  res.status(200).send("Litentry Task Server");
  });
 
 server.listen(PORT, () => console.log(`listening on port ${PORT}`));
