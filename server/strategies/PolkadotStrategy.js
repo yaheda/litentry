@@ -15,17 +15,22 @@ passport.use('polkadot', new CustomStrategy(
   async function(req, callback) {
     var data = req.body;
     await cryptoWaitReady();
-    const isValid = isValidSignature(data.message, data.signature, data.address);
-    if (!isValid) {
+    try {
+      const isValid = isValidSignature(data.message, data.signature, data.address);
+      if (!isValid) {
+        callback(null, false);
+        return;
+      }
+
+      var user = {
+        address: data.address
+      };
+
+      callback(null, user);
+    } catch (err) {
       callback(null, false);
-      return;
     }
-
-    var user = {
-      address: data.address
-    };
-
-    callback(null, user);
+    
   }
 ));
 passport.serializeUser((user, done) => { done(null, user); });

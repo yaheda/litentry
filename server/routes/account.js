@@ -27,14 +27,22 @@ router.post('/refreshToken', function (req, res, next) {
     return;
   }
 
-  const payload = jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET);
-  const token = getToken({ address: payload.address });
-  const newRefreshToken = getRefreshToken({ address: payload.address });
+  try {
+    const payload = jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET);
+    const token = getToken({ address: payload.address });
+    const newRefreshToken = getRefreshToken({ address: payload.address });
 
-  /// At this point one could save that refreshtoken to a database to have more granular control of the sessions
+    /// At this point one could save that refreshtoken to a database to have more granular control of the sessions
 
-  res.cookie("refreshToken", newRefreshToken, COOKIE_OPTIONS)
-  res.send({ success: true, token })
+    res.cookie("refreshToken", newRefreshToken, COOKIE_OPTIONS)
+    res.send({ success: true, token })
+  } catch (error) {
+    res.statusCode = 401;
+    res.send("Unauthorized");
+    return;
+  }
+
+  
 });
 
 
