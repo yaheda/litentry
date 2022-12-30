@@ -40,6 +40,7 @@ server.use(passport.session());
 
 
 require("./strategies/PolkadotStrategy")
+require("./strategies/JwtStrategy")
 
 var accountRoutes = require('./routes/account');
 var secretRoutes = require('./routes/secret');

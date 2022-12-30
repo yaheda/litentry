@@ -1,9 +1,41 @@
 var passport = require('passport');
 var express = require('express');
+const jwt = require("jsonwebtoken")
 var router = express.Router();
+const {
+  getToken,
+  COOKIE_OPTIONS,
+  getRefreshToken,
+  verifyUser,
+} = require("../modules/authenticate")
 
 router.post('/signin', passport.authenticate('polkadot'), function (req, res) {
-  res.send({ success: true })
+  var user = req.user;
+  const token = getToken(user);
+  const refreshToken = getRefreshToken(user);
+  res.cookie('refreshToken', refreshToken, COOKIE_OPTIONS);
+  res.send({ success: true, token });
+});
+
+router.get('/refreshToken', function (req, res, next) {
+  const { signedCookies = {} } = req
+  const { refreshToken } = signedCookies
+  
+  if (!refreshToken) {
+    res.statusCode = 401;
+    res.send("Unauthorized");
+    return;
+  }
+
+  const payload = jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET);
+  const token = getToken({ address: payload.address });
+  const newRefreshToken = getRefreshToken({ _id: userId });
+
+  /// At this point one could save that refreshtoken to a db to have more granular control of the sessions
+
+  res.cookie("refreshToken", newRefreshToken, COOKIE_OPTIONS)
+  res.send({ success: true, token })
+  
 });
 
 module.exports = router;

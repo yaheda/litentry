@@ -1,9 +1,10 @@
 import logo from './logo.svg';
 import './App.css';
-import React, {useEffect, useState} from 'react';
+import React, {useEffect, useState, useContext, useCallback} from 'react';
 import axios from './modules/axios';
 import { web3Accounts, web3Enable, web3FromSource } from '@polkadot/extension-dapp';
 import { stringToHex } from "@polkadot/util";
+import { UserContext } from "./UserContext"
 
 function App() {
 
@@ -12,6 +13,24 @@ function App() {
   const [account, setAccount] = useState(undefined);
   const [secret, setSecret] = useState(undefined);
   const [error, setError] = useState(undefined);
+  const [token, setToken] = useState(undefined);
+
+  const [userContext, setUserContext] = useContext(UserContext);
+
+  const verifyUser = useCallback(() => {
+    //debugger;
+    axios('/api/v1/refreshToken', {
+      method: 'GET',
+      withCredentials: true,
+      headers: { "Content-Type": "application/json" }
+    }).then((response) => {
+      setToken(response.data.token);
+      setTimeout(verifyUser, 5 * 60 * 1000);
+    }).catch((response) => {
+      setToken(undefined);
+      setError('Error refreshing token')
+    })
+  }, [setToken]);
 
   useEffect(() => {
     const init = () => {
@@ -19,6 +38,19 @@ function App() {
     };
     init();
   }, []);
+
+  useEffect(() => {
+    verifyUser()
+  }, [verifyUser])
+
+  useEffect(() => {
+    const init = async () => {
+      if (!token) return;
+
+      await getSecret();
+    }
+    init();
+  }, [token])
 
   async function initPolkadot() {
     setLoading(true);
@@ -64,7 +96,7 @@ function App() {
   async function signin() {
     setLoading(true);
 
-    var signInPayload = getSignInPayload();
+    var signInPayload = await getSignInPayload();
     if (!signInPayload) {
       setError('Error signing message');
       return;
@@ -72,9 +104,31 @@ function App() {
 
     try {
       var response = await axios.post('/api/v1/signin', signInPayload, { headers: { Accept: "application/json","Content-Type": "application/json"}});
-      setAuthenticated(true);
+      debugger;
+      await setToken(response.data.token)
+      //await getSecret();
+      
     } catch (error) {
-      setError('Error contacting server')
+      setError('Error Signing in - please contact your admin')
+    }
+
+    setLoading(false);
+  }
+
+  async function getSecret() {
+    setLoading(true);
+
+    try {
+      var response = await axios.get('/api/v1/secret', { 
+        headers: { 
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        }}
+      );
+      setSecret(response.data.secret)
+
+    } catch (error) {
+      setError('Error fetching secret - please contact your admin')
     }
 
     setLoading(false);
@@ -89,12 +143,15 @@ function App() {
         <img src={logo} className="App-logo" alt="logo" />
 
         {account && <>
-          <button 
-            className="btn btn-success"
-            onClick={e => signin()}>
-              Click here to sign-in with Polkadot and reveal secret
-          </button>
-          {secret && <p>{secret}</p>}
+          {!token ? (<>
+            <button 
+              className="btn btn-success"
+              onClick={e => signin()}>
+                Click here to sign-in with Polkadot and reveal secret
+            </button>
+          </>) : (<>
+            secret message is: {secret}
+          </>)}
         </>}
         
         {error && <p className='text-danger'>{error}</p>}
