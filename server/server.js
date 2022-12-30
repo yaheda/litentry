@@ -10,7 +10,7 @@ const server = express();
 
 server.use(express.json());
 server.use(cookieParser(process.env.COOKIE_SECRET))
-server.use(express.urlencoded({ extended: true }));
+//server.use(express.urlencoded({ extended: true }));
 
 const whitelist = process.env.WHITELISTED_DOMAINS
   ? process.env.WHITELISTED_DOMAINS.split(",")
@@ -26,6 +26,7 @@ const corsOptions = {
   },
 
   credentials: true,
+  exposedHeaders: ["set-cookie"],
 }
 
 server.use(cors(corsOptions))

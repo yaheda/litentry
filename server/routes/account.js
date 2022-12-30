@@ -17,7 +17,7 @@ router.post('/signin', passport.authenticate('polkadot'), function (req, res) {
   res.send({ success: true, token });
 });
 
-router.get('/refreshToken', function (req, res, next) {
+router.post('/refreshToken', function (req, res, next) {
   const { signedCookies = {} } = req
   const { refreshToken } = signedCookies
   
@@ -29,7 +29,7 @@ router.get('/refreshToken', function (req, res, next) {
 
   const payload = jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET);
   const token = getToken({ address: payload.address });
-  const newRefreshToken = getRefreshToken({ _id: userId });
+  const newRefreshToken = getRefreshToken({ address: payload.address });
 
   /// At this point one could save that refreshtoken to a db to have more granular control of the sessions
 

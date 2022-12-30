@@ -2,7 +2,7 @@ import logo from './logo.svg';
 import './App.css';
 import React, {useEffect, useState, useContext, useCallback} from 'react';
 import axios from './modules/axios';
-import { web3Accounts, web3Enable, web3FromSource } from '@polkadot/extension-dapp';
+import { web3Accounts, web3Enable, web3FromSource, web3AccountsSubscribe } from '@polkadot/extension-dapp';
 import { stringToHex } from "@polkadot/util";
 import { UserContext } from "./UserContext"
 
@@ -18,9 +18,9 @@ function App() {
   const [userContext, setUserContext] = useContext(UserContext);
 
   const verifyUser = useCallback(() => {
-    //debugger;
+    
     axios('/api/v1/refreshToken', {
-      method: 'GET',
+      method: 'POST',
       withCredentials: true,
       headers: { "Content-Type": "application/json" }
     }).then((response) => {
@@ -28,25 +28,32 @@ function App() {
       setTimeout(verifyUser, 5 * 60 * 1000);
     }).catch((response) => {
       setToken(undefined);
-      setError('Error refreshing token')
+      //setError('Error refreshing token')
     })
   }, [setToken]);
 
   useEffect(() => {
-    const init = () => {
-      initPolkadot();
+    const init = async () => {
+      //await initPolkadot();
     };
     init();
   }, []);
 
   useEffect(() => {
     verifyUser()
-  }, [verifyUser])
+  }, [verifyUser]);
+
+  useEffect(() => {
+    const init = async () => {
+      if (!account) return;
+      await signin();
+    }
+    init();
+  }, [account])
 
   useEffect(() => {
     const init = async () => {
       if (!token) return;
-
       await getSecret();
     }
     init();
@@ -56,13 +63,13 @@ function App() {
     setLoading(true);
 
     try {
-      const extensions = await web3Enable('LitentryTask');
+      const extensions = await web3Enable('lit dapp');
       const allAccounts = await web3Accounts();
+      debugger;
       if (extensions.length === 0) {
         setError('no extension installed, or the user did not accept the authorization')
         return;
       }
-      debugger;
       setAccount(allAccounts[0]);
     } catch(error) {
       setError(error.message ?? 'Opps error, please contact your system administrator');
@@ -93,6 +100,12 @@ function App() {
     return undefined;
   }
 
+  async function clickme() {
+    const extensions = await web3Enable('lit dapp');
+    const allAccounts = await web3Accounts();
+    debugger;
+  }
+
   async function signin() {
     setLoading(true);
 
@@ -103,11 +116,10 @@ function App() {
     }
 
     try {
-      var response = await axios.post('/api/v1/signin', signInPayload, { headers: { Accept: "application/json","Content-Type": "application/json"}});
-      debugger;
-      await setToken(response.data.token)
-      //await getSecret();
-      
+      var response = await axios.post('/api/v1/signin', signInPayload, { 
+        withCredentials: true,
+        headers: { Accept: "application/json","Content-Type": "application/json"}});
+      await setToken(response.data.token);
     } catch (error) {
       setError('Error Signing in - please contact your admin')
     }
@@ -143,18 +155,31 @@ function App() {
         <img src={logo} className="App-logo" alt="logo" />
 
         {account && <>
-          {!token ? (<>
+          
+        </>}
+
+        {!token ? (<>
             <button 
               className="btn btn-success"
-              onClick={e => signin()}>
+              onClick={e => initPolkadot()}>
                 Click here to sign-in with Polkadot and reveal secret
             </button>
           </>) : (<>
-            secret message is: {secret}
+            secret message: <br /><p>{secret}</p>
+            <button 
+              className="btn btn-success"
+              onClick={e => initPolkadot()}>
+                Logout
+            </button>
           </>)}
-        </>}
         
         {error && <p className='text-danger'>{error}</p>}
+
+        {/* <button 
+              className="btn btn-success"
+              onClick={e => clickme()}>
+                random
+            </button> */}
         
       </header>
     </div>
