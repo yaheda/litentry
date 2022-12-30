@@ -100,12 +100,6 @@ function App() {
     return undefined;
   }
 
-  async function clickme() {
-    const extensions = await web3Enable('lit dapp');
-    const allAccounts = await web3Accounts();
-    debugger;
-  }
-
   async function signin() {
     setLoading(true);
 
@@ -146,6 +140,29 @@ function App() {
     setLoading(false);
   }
 
+  async function signout() {
+    setLoading(true);
+
+    try {
+      var response = await axios('/api/v1/signout', { 
+        method: 'POST',
+        withCredentials: true,
+        headers: { "Content-Type": "application/json" },
+        headers: { 
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        }}
+      );
+      setSecret(undefined);
+      setToken(undefined);
+
+    } catch (error) {
+      setError('Error logging out - please contact your admin')
+    }
+
+    setLoading(false);
+  }
+
   return (
     <div className="App">
       <header className="App-header">
@@ -168,18 +185,12 @@ function App() {
             secret message: <br /><p>{secret}</p>
             <button 
               className="btn btn-success"
-              onClick={e => initPolkadot()}>
+              onClick={e => signout()}>
                 Logout
             </button>
           </>)}
         
         {error && <p className='text-danger'>{error}</p>}
-
-        {/* <button 
-              className="btn btn-success"
-              onClick={e => clickme()}>
-                random
-            </button> */}
         
       </header>
     </div>

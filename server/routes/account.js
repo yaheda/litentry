@@ -31,11 +31,23 @@ router.post('/refreshToken', function (req, res, next) {
   const token = getToken({ address: payload.address });
   const newRefreshToken = getRefreshToken({ address: payload.address });
 
-  /// At this point one could save that refreshtoken to a db to have more granular control of the sessions
+  /// At this point one could save that refreshtoken to a database to have more granular control of the sessions
 
   res.cookie("refreshToken", newRefreshToken, COOKIE_OPTIONS)
   res.send({ success: true, token })
-  
 });
+
+
+router.post('/signout', verifyUser, function (req, res) {
+  const { signedCookies = {} } = req;
+  const { refreshToken } = signedCookies;
+
+  /// remove any refreshtoken that could be linked to some database
+
+  res.clearCookie("refreshToken", COOKIE_OPTIONS)
+  res.send({ success: true })
+});
+
+
 
 module.exports = router;
