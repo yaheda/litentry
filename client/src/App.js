@@ -202,6 +202,7 @@ function App() {
         <div>Litentry Fullstack Task</div>
         {account && <h6>Wallet connected with {account.address}</h6>}
 
+        {loading == true && <><br /><h2>Loading...</h2></>}
         <img src={logo} className="App-logo" alt="logo" />
 
         {account && <>
