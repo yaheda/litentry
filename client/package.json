@@ -16,6 +16,7 @@
     "@testing-library/react": "^13.4.0",
     "@testing-library/user-event": "^13.5.0",
     "axios": "^1.2.2",
+    "babel-jest": "^29.3.1",
     "body-parser": "^1.20.1",
     "bootstrap": "^5.2.3",
     "http-proxy-middleware": "^2.0.6",
@@ -30,7 +31,7 @@
     "start:app": "react-scripts start",
     "start:server": "cd ../server && npm start",
     "build": "react-scripts build",
-    "test": "react-scripts test",
+    "test": "react-scripts test --transformIgnorePatterns \"node_modules/(?!@codemirror)/\"",
     "eject": "react-scripts eject",
     "now-build": "react-scripts build && mv build dist"
   },
