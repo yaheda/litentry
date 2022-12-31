@@ -5,6 +5,7 @@ const cors = require("cors")
 const logger = require('./modules/logger');
 
 require("dotenv").config()
+require("./modules/connectdb")
 
 const PORT = process.env.PORT || 5000; 
 const server = express();
