@@ -24,6 +24,7 @@ The api has the following enpoints:
 The user proves they own an address by requesting the message signature using Polkadot.js extension.
 
 In turn the backend validates this signature in a passort custom strategy. If valid a JWT token is issued via passort.js which can be used for secured requests like /api/v1/secrets.
+The secret is fetched from a mongodb instance.
 
 <h2>Client</h2>
 
