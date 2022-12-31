@@ -11,7 +11,6 @@ function App() {
   const [loading, setLoading] = useState(false);
   const [authenticated, setAuthenticated] = useState(false);
   const [account, setAccount] = useState(undefined);
-  const [address, setAddress] = useState(undefined);
   const [secret, setSecret] = useState(undefined);
   const [error, setError] = useState(undefined);
   const [token, setToken] = useState(undefined);
@@ -70,13 +69,12 @@ function App() {
     try {
       const extensions = await web3Enable('lit dapp');
       const allAccounts = await web3Accounts();
-      debugger;
+      
       if (extensions.length === 0) {
         setError('no extension installed, or the user did not accept the authorization')
         return;
       }
       setAccount(allAccounts[0]);
-      setAddress(allAccounts[0].address);
     } catch(error) {
       setError(error.message ?? 'Opps error, please contact your system administrator');
     }
@@ -139,9 +137,6 @@ function App() {
         }}
       );
       setSecret(response.data.secret);
-
-      //updateAccount();
-
     } catch (error) {
       setError('Error fetching secret - please contact your admin')
     }
@@ -186,16 +181,6 @@ function App() {
     }
   }, [syncLogout])
 
-  async function updateAccount() {
-    const extensions = await web3Enable('lit dapp');
-    const allAccounts = await web3Accounts();
-    if (extensions.length === 0) {
-      setError('no extension installed, or the user did not accept the authorization')
-      return;
-    }
-    setAddress(allAccounts);
-  }
-
   return (
     <div className="App">
       <header className="App-header">
@@ -204,10 +189,6 @@ function App() {
 
         {loading == true && <><br /><h2>Loading...</h2></>}
         <img src={logo} className="App-logo" alt="logo" />
-
-        {account && <>
-          
-        </>}
 
         {!token ? (<>
             <button 
