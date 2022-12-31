@@ -11,10 +11,16 @@ const {
 
 router.post('/signin', passport.authenticate('polkadot'), function (req, res) {
   var user = req.user;
-  const token = getToken(user);
-  const refreshToken = getRefreshToken(user);
-  res.cookie('refreshToken', refreshToken, COOKIE_OPTIONS);
-  res.send({ success: true, token });
+  try {
+    const token = getToken(user);
+    const refreshToken = getRefreshToken(user);
+    res.cookie('refreshToken', refreshToken, COOKIE_OPTIONS);
+    res.send({ success: true, token });
+  } catch(error) {
+    res.statusCode = 500;
+    res.send("Internal error");
+  }
+  
 });
 
 router.post('/refreshToken', function (req, res, next) {
@@ -37,8 +43,8 @@ router.post('/refreshToken', function (req, res, next) {
     res.cookie("refreshToken", newRefreshToken, COOKIE_OPTIONS)
     res.send({ success: true, token })
   } catch (error) {
-    res.statusCode = 401;
-    res.send("Unauthorized");
+    res.statusCode = 500;
+    res.send("Internal error");
     return;
   }
 
