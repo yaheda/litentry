@@ -1,4 +1,4 @@
-<h1>Litentry Task</h1>
+<h1>Litentry</h1>
 <h2>Goal</h2>
 <ul>
 	<li>Provide a Web application that allows users to access a “Secret” page.</li>
